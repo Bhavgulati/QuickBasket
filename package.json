@@ -2,9 +2,10 @@
   "name": "ecommerce-project",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "backend/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "nodemon backend/server.js", 
+    "start":"node backend/server.js" 
   },
   "repository": {
     "type": "git",
@@ -13,7 +14,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/Bhavgulati/Ecommerce-project/issues"
   },
@@ -28,5 +29,8 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.13.2",
     "stripe": "^18.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
   }
 }
