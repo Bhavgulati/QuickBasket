@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-
+import bcrypt from "bcryptjs"; // to hash the password
 const UserSchema = new mongoose.Schema({
     name:{ // key value pari nkey: {value}
         type:String,
@@ -41,9 +41,31 @@ const UserSchema = new mongoose.Schema({
         timestamps:true,
     }
 );
-
-const User = mongoose.model("User",UserSchema);
-
-export default User;
 //timestamps is a second arguemet after fields
 //{ ... fields}, {timestamps: true}
+
+
+
+//pre save hook to hash passowrd 
+//calls a middle function between this and next which checks 
+//if the passowrd is modifie or not 
+//and if not then salts it and moves on to next
+UserSchema.pre("save",async function (next){
+    if(!this.isModified("password")) return next();
+
+    try{
+        const salt = await bcrypt.genSalt(10);
+        this.password = await bcrypt.hash(this.password,salt);
+        next()
+    }catch(error){
+        next(error)
+    }
+})
+
+UserSchema.methods.comparePassword =  async function  (password) {
+    return await bcrypt.compare(password, this.password)
+}
+
+const User = mongoose.model("User",UserSchema); // should come after hashing to save the changes
+//note learn more about next and this
+export default User;
