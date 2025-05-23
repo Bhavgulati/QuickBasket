@@ -2,7 +2,7 @@ import User from "../models/User.js"; // import UserSchema
 import jwt from "jsonwebtoken";
 import {redis} from "../lib/redis.js";
 
-const generateTokens = (userId)=>{ //generateds a access token based on sectet key
+const generateTokens = (userId)=>{ //generates a access token based on sectet key
     const accessToken = jwt.sign({userId}, process.env.ACCESS_TOKEN_SECRET,{
         expiresIn:'15m'
     });
@@ -65,7 +65,18 @@ export const signup = async (req,res) =>{
 export const login = async (req,res) =>{
     res.send("login");
 }
-
+//to logout get the toke nfrom cookie , delete the decoded value
 export const logout = async (req,res) =>{
-    res.send("logout");
+    try{
+        const refreshToken = req.cookies.refreshToken; // access refresh Token from cooke
+        if(refreshToken){
+           const decoded = jwt.verify(refreshToken,process.env.REFRESH_TOKEN_SECRET); //decodes
+           await redis.del(`refresh_token:${decoded.userId}`)    //searchs for the key in redis
+        }
+        res.clearCookie("accessToken");
+        res.clearCookie("refreshToken");
+        res.json({message: "Logged Out successfully"});
+    }catch(error){
+        res.status(500).json({message:"Server error",error: error.message});
+    }
 }
