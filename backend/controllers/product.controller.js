@@ -146,3 +146,47 @@ export const getProductsByCategory = async (req, res) => {
 	}
 };
 
+// PUT: Toggle the 'isFeatured' status of a product
+// Toggle the 'isFeatured' flag for a product (used for highlighting products on homepage, etc.)
+export const toggleFeaturedProduct = async (req, res) => {
+	try {
+		const product = await Product.findById(req.params.id);
+
+		if (!product) {
+			// Nothing to toggle if the product doesn't exist
+			return res.status(404).json({ message: "Product not found" });
+		}
+
+		// Flip the current isFeatured value
+		product.isFeatured = !product.isFeatured;
+
+		// Save the updated value back to the DB
+		const updatedProduct = await product.save();
+
+		// Refresh the cache so it's in sync with the DB
+		await updateFeaturedProductsCache();
+
+		// Send updated product back to client
+		res.json(updatedProduct);
+
+	} catch (error) {
+		// Something went wrong — likely DB or cache issue
+		console.error("Error in toggleFeaturedProduct controller:", error.message);
+		res.status(500).json({ message: "Server error", error: error.message });
+	}
+};
+
+// Refreshes the cached list of featured products in Redis
+async function updateFeaturedProductsCache() {
+	try {
+		// Using lean() to return plain JS objects instead of Mongoose documents — improves performance
+		const featuredProducts = await Product.find({ isFeatured: true }).lean();
+
+		// Store updated list in Redis (key: 'featured_products')
+		await redis.set("featured_products", JSON.stringify(featuredProducts));
+	} catch (error) {
+		// Not throwing error here because it's not critical — just logs it
+		console.warn("Error while updating featured products cache:", error.message);
+	}
+}
+
