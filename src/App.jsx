@@ -1,5 +1,8 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 
+import React from 'react'
+
+
 import HomePage from "./pages/HomePage";
 import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
@@ -16,7 +19,9 @@ import { useCartStore } from "./stores/useCartStore";
 import PurchaseSuccessPage from "./pages/PurchaseSuccessPage";
 import PurchaseCancelPage from "./pages/PurchaseCancelPage";
 
-function App() {
+import './index.css'
+
+const  App = ()=> {
 	const { user, checkAuth, checkingAuth } = useUserStore();
 	const { getCartItems } = useCartStore();
 	useEffect(() => {
