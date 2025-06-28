@@ -83,4 +83,74 @@ export const createCheckoutSession = async (req, res) => {
 	}
 };
 
-/
+// this is called when payment succeeds (from frontend)
+export const checkoutSuccess = async (req, res) => {
+	try {
+		const { sessionId } = req.body;
+		const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+		if (session.payment_status === "paid") {
+			// deactivate the coupon used, can't be reused
+			if (session.metadata.couponCode) {
+				await Coupon.findOneAndUpdate(
+					{
+						code: session.metadata.couponCode,
+						userId: session.metadata.userId,
+					},
+					{
+						isActive: false,
+					}
+				);
+			}
+
+			// okay cool, now make an order in DB
+			const products = JSON.parse(session.metadata.products);
+			const newOrder = new Order({
+				user: session.metadata.userId,
+				products: products.map((product) => ({
+					product: product.id,
+					quantity: product.quantity,
+					price: product.price,
+				})),
+				totalAmount: session.amount_total / 100,
+				stripeSessionId: sessionId,
+			});
+
+			await newOrder.save();
+
+			// tell frontend we’re all good
+			res.status(200).json({
+				success: true,
+				message: "Payment successful, order created, and coupon deactivated if used.",
+				orderId: newOrder._id,
+			});
+		}
+	} catch (error) {
+		console.error("Error processing successful checkout:", error);
+		res.status(500).json({ message: "Error processing successful checkout", error: error.message });
+	}
+};
+
+// used internally to create a one-time stripe coupon
+async function createStripeCoupon(discountPercentage) {
+	const coupon = await stripe.coupons.create({
+		percent_off: discountPercentage,
+		duration: "once",
+	});
+	return coupon.id;
+}
+
+// give user a new coupon (kind of like a reward for big spend)
+async function createNewCoupon(userId) {
+	await Coupon.findOneAndDelete({ userId }); // delete old one if any
+
+	const newCoupon = new Coupon({
+		code: "GIFT" + Math.random().toString(36).substring(2, 8).toUpperCase(), // dumb random code
+		discountPercentage: 10,
+		expirationDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+		userId: userId,
+	});
+
+	await newCoupon.save();
+	return newCoupon;
+}
