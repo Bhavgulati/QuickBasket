@@ -9,6 +9,8 @@ import path from "path";
 import authRoutes from "./routes/auth.route.js";
 import cookieParser from "cookie-parser";
 
+
+
 import cartRoutes from "./routes/cart.route.js";
 import productRoutes from "./routes/product.route.js";
 import paymentroutes from "./routes/payment.route.js";
