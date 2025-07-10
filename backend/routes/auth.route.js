@@ -1,8 +1,10 @@
 //file name is auth.route.js as a common convention for route files
 
 import express from "express";
-import {login,logout,refreshToken,signup} from "../controllers/auth.controller.js";
+import {ping ,login,logout,refreshToken,signup} from "../controllers/auth.controller.js";
 const router = express.Router();
+
+router.get("/ping",ping);
 
 router.post("/signup", signup);
 

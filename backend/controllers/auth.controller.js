@@ -2,6 +2,10 @@ import User from "../models/user.model.js"; // import UserSchema
 import jwt from "jsonwebtoken";
 import {redis} from "../lib/redis.js";
 
+export const ping = (req,res)=>{
+    console.log("Pinged");
+    return res.json({message:"Ping"});
+}
 const generateTokens = (userId)=>{ //generates a access token based on sectet key
     const accessToken = jwt.sign({userId}, process.env.ACCESS_TOKEN_SECRET,{
         expiresIn:'15m'
