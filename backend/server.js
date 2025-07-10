@@ -12,8 +12,8 @@ import cookieParser from "cookie-parser";
 import cartRoutes from "./routes/cart.route.js";
 import productRoutes from "./routes/product.route.js";
 import paymentroutes from "./routes/payment.route.js";
-
-const __dirname = Path2D.resolve();
+import couponRoutes from "./routes/coupon.route.js";
+const __dirname = path.resolve();
 
 dotenv.config();
 

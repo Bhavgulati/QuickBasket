@@ -42,7 +42,7 @@ const UserSchema = new mongoose.Schema({
     }
 );
 //timestamps is a second arguemet after fields
-//{ ... fields}, {timestamps: true}
+
 
 
 
