@@ -11,9 +11,6 @@ import cookieParser from "cookie-parser";
 
 import cartRoutes from "./routes/cart.route.js";
 import productRoutes from "./routes/product.route.js";
-import orderRoutes from "./routes/order.route.js";
-import userRoutes from "./routes/user.route.js";
-
 import paymentroutes from "./routes/payment.route.js";
 
 const __dirname = Path2D.resolve();
@@ -30,7 +27,6 @@ app.use("/api/auth", authRoutes)
 app.use("/api/cart", cartRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/coupons",couponRoutes);
-app.use("/api/user",  userRoutes);
 app.use("/api/payments", paymentroutes);
 
 if(process.env.NODE_ENV === "production") {
